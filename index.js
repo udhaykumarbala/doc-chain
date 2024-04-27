@@ -9,12 +9,12 @@ const app = express();
 
 app.use(bodyParser.json());
 var storage = multer.diskStorage({
-    destination: function (req, file, callback) {
-        callback(null, 'files/');
-    },
-    filename: function (req, file, callback) {
-        callback(null, file.originalname);
-    }
+  destination: function (req, file, callback) {
+    callback(null, 'files/');
+  },
+  filename: function (req, file, callback) {
+    callback(null, file.originalname);
+  }
 });
 const upload = multer({ storage: storage });
 const db = new sqlite3.Database('filedata.db');
@@ -30,7 +30,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
   const fileHash = crypto.createHash('sha256').update(fs.readFileSync(file.path)).digest('hex');
   const fileId = crypto.randomBytes(16).toString('hex');
 
-  db.run("INSERT INTO files (id, name, filehash) VALUES (?, ?, ?)", [fileId, file.originalname, fileHash], function(err) {
+  db.run("INSERT INTO files (id, name, filehash) VALUES (?, ?, ?)", [fileId, file.originalname, fileHash], function (err) {
     if (err) {
       return res.status(500).send(err.message);
     }
@@ -66,7 +66,7 @@ app.post('/filehash', (req, res) => {
     return res.status(400).send({ message: "fileHash and fileId required" });
   }
   // insert filehash into db
-  db.run("INSERT INTO files (id,name,filehash) VALUES (?,?,?)", [fileId,fileId,fileHash], function(err) {
+  db.run("INSERT INTO files (id,name,filehash) VALUES (?,?,?)", [fileId, fileId, fileHash], function (err) {
     if (err) {
       return res.status(500).send({ message: "somethig went wrong" });
     }
@@ -90,10 +90,10 @@ app.post('/compare', (req, res) => {
       return res.status(500).send(err.message);
     }
     if (!row) {
-      return res.status(404).send('File not found');
+      return res.status(200).send({ isLoading: true, isFileIntact: false })
     }
     const isFileIntact = fileHash === row.filehash;
-    res.status(200).send({ isFileIntact });
+    res.status(200).send({ isLoading: false, isFileIntact });
   });
 });
 
