@@ -90,10 +90,11 @@ app.post('/compare', (req, res) => {
       return res.status(500).send(err.message);
     }
     if (!row) {
-      return res.status(200).send({ isLoading: true, isFileIntact: false })
+      res.status(200).send({ isLoading: true, isFileIntact: false })
+      return;
     }
     const isFileIntact = fileHash === row.filehash;
-    res.status(200).send({ isLoading: false, isFileIntact });
+    res.status(200).send({ isLoading: false, isFileIntact: isFileIntact});
   });
 });
 
